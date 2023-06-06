@@ -1,0 +1,3 @@
+[submodule "hub-and-spoke-playground"]
+	path = hub-and-spoke-playground
+	url = https://github.com/nicolgit/hub-and-spoke-playground
