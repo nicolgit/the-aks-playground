@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "aks-test"
+    },
+    "availabilityZones": {
+      "value": [ "2" ]
+    },
+    "usePrivateApiServer": {
+      "value": true
+    },
+    "subnetID": {
+      "value": "/subscriptions/b46e207b-8109-47d6-8120-9f447de26e37/resourceGroups/play-aks/providers/Microsoft.Network/virtualNetworks/test/subnets/default"
+    }
+  }
+}
