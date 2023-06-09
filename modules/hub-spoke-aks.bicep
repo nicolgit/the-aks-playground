@@ -1,5 +1,5 @@
 // description('The name of the Managed Cluster resource.')
-param clusterName string
+param clusterName string = 'aks-01'
 param location string = resourceGroup().location
 
 module hubSpokeDeploy '../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep' = {

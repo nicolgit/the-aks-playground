@@ -1,6 +1,6 @@
 //az deployment group create --resource-group <resource-group-name> --template-file default-aks.bicep --parameters @default-aks.parameters.json
 // description('The name of the Managed Cluster resource.')
-param clusterName string
+param clusterName string = 'aks-01'
 // Whether to deploy an API Server accessible ONLY from the vNET
 param usePrivateApiServer bool = false
 // description('Specifies the Azure location where the cluster should be created. Defaults to resource group location')
