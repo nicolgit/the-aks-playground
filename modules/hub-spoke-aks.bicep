@@ -1,13 +1,12 @@
 // description('The name of the Managed Cluster resource.')
-param clusterName string = 'aks-01'
-param location string = resourceGroup().location
+var clusterName = 'aks-01'
+
+var location = 'westeurope'
 
 module hubSpokeDeploy '../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep' = {
   name: 'hub-spoke-deploy'
   params: {
-      location: location
-      locationSpoke03: location
-      firewallTier: 'Basic'
+      firewallTier: 'Premium'
       deployBastion: false
       deployGateway: false
       deployVmHub: false
@@ -16,6 +15,14 @@ module hubSpokeDeploy '../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep' = 
       deployVm03: false
   }
 }
+
+module anyToAnyDeploy '../hub-and-spoke-playground/any-to-any-bicep/any-to-any.bicep' = {
+  name: 'any-to-any-deploy'
+  params: {
+      firewallTier: hubSpokeDeploy.outputs.firewallTier
+  }
+}
+
 module aksDeploy 'default-aks.bicep' = {
     name: 'aks-deploy'
     params: {
