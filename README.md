@@ -23,7 +23,7 @@ You can use the following button to deploy the demo to your Azure subscription:
 
 | | &nbsp; | &nbsp; |
 |---|---|---|
-|1| the **AKS** playground<br/><sub>deploys `hub-lab-net` spokes `01`-`02`-`03` an `AKS Cluster` and all the required routing | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnicolgit%2Fthe-aks-playground%2Fmain%2Farm%2Fhub-spoke-aks.json)
+|1| the **AKS** playground<br/><sub>deploys `hub-lab-net` spokes `01`-`02`-`03` an `AKS Cluster` and all the required routing | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnicolgit%2Fthe-aks-playground%2Fmain%2Fmodules-arm%2Fhub-spoke-aks.json)
 
 
 # Architecture
