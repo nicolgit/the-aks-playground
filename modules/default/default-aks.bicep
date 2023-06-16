@@ -23,7 +23,7 @@ param availabilityZones array = ['1','2','3']
 param dnsPrefix string = 'cl01'
 //OTHERS
 // The nodes resource group name (optional)
-param nodeResourceGroup string = '${dnsPrefix}-${clusterName}-rg'
+param nodeResourceGroup string = '${dnsPrefix}-${clusterName}-${utcNow()}-rg'
 param tags object = {
   environment: 'production'
   projectCode: 'xyz'

@@ -1,0 +1,1658 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.18.4.5664",
+      "templateHash": "136371982864530110"
+    }
+  },
+  "variables": {
+    "clusterName": "aks-01",
+    "location": "westeurope"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "hub-spoke-deploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "firewallTier": {
+            "value": "Premium"
+          },
+          "deployBastion": {
+            "value": false
+          },
+          "deployGateway": {
+            "value": false
+          },
+          "deployVmHub": {
+            "value": false
+          },
+          "deployVm01": {
+            "value": false
+          },
+          "deployVm02": {
+            "value": false
+          },
+          "deployVm03": {
+            "value": false
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "3643799897607885012"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "locationSpoke03": {
+              "type": "string",
+              "defaultValue": "northeurope"
+            },
+            "firewallTier": {
+              "type": "string",
+              "defaultValue": "Premium",
+              "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+              ],
+              "metadata": {
+                "description": "Basic, Standard or Premium tier"
+              }
+            },
+            "deployBastion": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "deployGateway": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "deployVmHub": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "deployVm01": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "deployVm02": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "deployVm03": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "username": {
+              "type": "string",
+              "defaultValue": "nicola",
+              "metadata": {
+                "description": "username administrator for all VMs"
+              }
+            },
+            "password": {
+              "type": "securestring",
+              "defaultValue": "password.123",
+              "metadata": {
+                "description": "username administrator password for all VMs"
+              }
+            },
+            "virtualMachineSKU": {
+              "type": "string",
+              "defaultValue": "Standard_D2s_v3"
+            }
+          },
+          "variables": {
+            "firewallName": "lab-firewall",
+            "bastionName": "lab-bastion",
+            "vnetGatewayName": "lab-gateway",
+            "hublabName": "hub-lab-net",
+            "spoke01Name": "spoke-01",
+            "spoke02Name": "spoke-02",
+            "spoke03Name": "spoke-03",
+            "vmHubName": "hub-vm",
+            "vm01Name": "[format('{0}-vm', variables('spoke01Name'))]",
+            "vm02Name": "[format('{0}-vm', variables('spoke02Name'))]",
+            "vm03Name": "[format('{0}-vm', variables('spoke03Name'))]",
+            "firewallIPName": "[format('{0}-ip', variables('firewallName'))]",
+            "firewallManagementIPName": "lab-firewall-mgt-ip",
+            "bastionIPName": "[format('{0}-ip', variables('bastionName'))]",
+            "vnetGatewayIPName": "lab-gateway-ip",
+            "vmHubDiskName": "[format('{0}-disk', variables('vmHubName'))]",
+            "vmHubNICName": "[format('{0}-nic', variables('vmHubName'))]",
+            "vmHubAutoshutdownName": "[format('shutdown-computevm-{0}', variables('vmHubName'))]",
+            "vm01DiskName": "[format('{0}-disk', variables('vm01Name'))]",
+            "vm01NICName": "[format('{0}-nic', variables('vm01Name'))]",
+            "vm01AutoshutdownName": "[format('shutdown-computevm-{0}', variables('vm01Name'))]",
+            "vm02DiskName": "[format('{0}-disk', variables('vm02Name'))]",
+            "vm02NICName": "[format('{0}-nic', variables('vm02Name'))]",
+            "vm02AutoshutdownName": "[format('shutdown-computevm-{0}', variables('vm02Name'))]",
+            "vm03DiskName": "[format('{0}-disk', variables('vm03Name'))]",
+            "vm03NICName": "[format('{0}-nic', variables('vm03Name'))]",
+            "vm03AutoshutdownName": "[format('shutdown-computevm-{0}', variables('vm03Name'))]",
+            "subnets": "[concat(createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', '10.12.4.0/24')), createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', '10.12.0.0/24')), createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', '10.12.2.0/24')), createObject('name', 'DefaultSubnet', 'properties', createObject('addressPrefix', '10.12.1.0/24'))), if(equals(parameters('firewallTier'), 'Basic'), createArray(createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', '10.12.3.0/24', 'privateEndpointNetworkPolicies', 'Enabled', 'privateLinkServiceNetworkPolicies', 'Enabled'))), createArray()))]"
+          },
+          "resources": {
+            "hubLabVnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('hublabName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.12.0.0/16"
+                  ]
+                },
+                "subnets": "[variables('subnets')]"
+              }
+            },
+            "spoke01vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('spoke01Name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.13.1.0/24"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "addressPrefix": "10.13.1.0/26"
+                    }
+                  },
+                  {
+                    "name": "services",
+                    "properties": {
+                      "addressPrefix": "10.13.1.64/26"
+                    }
+                  }
+                ]
+              }
+            },
+            "spoke02vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('spoke02Name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.13.2.0/24"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "addressPrefix": "10.13.2.0/26"
+                    }
+                  },
+                  {
+                    "name": "services",
+                    "properties": {
+                      "addressPrefix": "10.13.2.64/26"
+                    }
+                  }
+                ]
+              }
+            },
+            "spoke03vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('spoke03Name')]",
+              "location": "[parameters('locationSpoke03')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.13.3.0/24"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "addressPrefix": "10.13.3.0/26"
+                    }
+                  },
+                  {
+                    "name": "services",
+                    "properties": {
+                      "addressPrefix": "10.13.3.64/26"
+                    }
+                  }
+                ]
+              }
+            },
+            "peeringHubSpoke01": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke01Name')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke01Name'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke01vnet"
+              ]
+            },
+            "peeringSpoke01Hub": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('spoke01Name'), format('{0}-to-{1}', variables('spoke01Name'), variables('hublabName')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke01vnet"
+              ]
+            },
+            "peeringHubSpoke02": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke02Name')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke02Name'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke02vnet"
+              ]
+            },
+            "peeringSpoke02Hub": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('spoke02Name'), format('{0}-to-{1}', variables('spoke02Name'), variables('hublabName')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke02vnet"
+              ]
+            },
+            "peeringHubSpoke03": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke03Name')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke03Name'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke03vnet"
+              ]
+            },
+            "peeringSpoke03Hub": {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2019-09-01",
+              "name": "[format('{0}/{1}', variables('spoke03Name'), format('{0}-to-{1}', variables('spoke03Name'), variables('hublabName')))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "spoke03vnet"
+              ]
+            },
+            "bastionHubIP": {
+              "condition": "[parameters('deployBastion')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('bastionIPName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            "bastion": {
+              "condition": "[parameters('deployBastion')]",
+              "type": "Microsoft.Network/bastionHosts",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('bastionName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hublabName'), 'AzureBastionSubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionIPName'))]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "bastionHubIP",
+                "hubLabVnet"
+              ]
+            },
+            "workspace": {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2022-10-01",
+              "name": "hub-playground-ws",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                }
+              }
+            },
+            "firewallIP": {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('firewallIPName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            "firewallManagementIP": {
+              "condition": "[equals(parameters('firewallTier'), 'Basic')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('firewallManagementIPName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            "firewall": {
+              "type": "Microsoft.Network/azureFirewalls",
+              "apiVersion": "2022-09-01",
+              "name": "[variables('firewallName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "managementIpConfiguration": "[if(equals(parameters('firewallTier'), 'Basic'), createObject('name', 'ipconfig-mgt', 'properties', createObject('subnet', createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hublabName'), 'AzureFirewallManagementSubnet')), 'publicIPAddress', createObject('id', resourceId('Microsoft.Network/publicIPAddresses', variables('firewallManagementIPName'))))), null())]",
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hublabName'), 'AzureFirewallSubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIPName'))]"
+                      }
+                    }
+                  }
+                ],
+                "sku": {
+                  "name": "AZFW_VNet",
+                  "tier": "[parameters('firewallTier')]"
+                }
+              },
+              "dependsOn": [
+                "firewallIP",
+                "firewallManagementIP",
+                "hubLabVnet",
+                "vnetGateway"
+              ]
+            },
+            "firewallDiagnostics": {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/azureFirewalls/{0}', variables('firewallName'))]",
+              "name": "hub-playground-ws",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', 'hub-playground-ws')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 0,
+                      "enabled": true
+                    }
+                  }
+                ],
+                "logAnalyticsDestinationType": null,
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 0,
+                      "enabled": true
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "firewall",
+                "workspace"
+              ]
+            },
+            "vnetGatewayIP": {
+              "condition": "[parameters('deployGateway')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vnetGatewayIPName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+              }
+            },
+            "vnetGateway": {
+              "condition": "[parameters('deployGateway')]",
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vnetGatewayName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hublabName'), 'GatewaySubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnetGatewayIPName'))]"
+                      }
+                    }
+                  }
+                ],
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": false,
+                "bgpSettings": null,
+                "sku": {
+                  "name": "VpnGw1",
+                  "tier": "VpnGw1"
+                }
+              },
+              "dependsOn": [
+                "hubLabVnet",
+                "vnetGatewayIP"
+              ]
+            },
+            "vmHubDisk": {
+              "condition": "[parameters('deployVmHub')]",
+              "type": "Microsoft.Compute/disks",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vmHubDiskName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "creationData": {
+                  "createOption": "Empty"
+                },
+                "diskSizeGB": 128
+              }
+            },
+            "vmHubNIC": {
+              "condition": "[parameters('deployVmHub')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vmHubNICName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hublabName'), 'DefaultSubnet')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "hubLabVnet"
+              ]
+            },
+            "vmHub": {
+              "condition": "[parameters('deployVmHub')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vmHubName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('virtualMachineSKU')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "2019-Datacenter",
+                    "version": "latest"
+                  },
+                  "dataDisks": [
+                    {
+                      "lun": 0,
+                      "name": "[variables('vmHubDiskName')]",
+                      "createOption": "Attach",
+                      "managedDisk": {
+                        "id": "[resourceId('Microsoft.Compute/disks', variables('vmHubDiskName'))]"
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[variables('vmHubName')]",
+                  "adminUsername": "[parameters('username')]",
+                  "adminPassword": "[parameters('password')]",
+                  "windowsConfiguration": {
+                    "enableAutomaticUpdates": true
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmHubNICName'))]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "vmHubDisk",
+                "vmHubNIC"
+              ]
+            },
+            "vmHubAutoshutdown": {
+              "condition": "[parameters('deployVmHub')]",
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[variables('vmHubAutoshutdownName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "timeZoneId": "UTC",
+                "dailyRecurrence": {
+                  "time": "20:00"
+                },
+                "notificationSettings": {
+                  "status": "Disabled"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmHubName'))]"
+              },
+              "dependsOn": [
+                "vmHub"
+              ]
+            },
+            "vm01Disk": {
+              "condition": "[parameters('deployVm01')]",
+              "type": "Microsoft.Compute/disks",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm01DiskName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "creationData": {
+                  "createOption": "Empty"
+                },
+                "diskSizeGB": 128
+              }
+            },
+            "vm01NIC": {
+              "condition": "[parameters('deployVm01')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vm01NICName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spoke01Name'), 'default')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "spoke01vnet"
+              ]
+            },
+            "vm01": {
+              "condition": "[parameters('deployVm01')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm01Name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('virtualMachineSKU')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "2019-Datacenter",
+                    "version": "latest"
+                  },
+                  "dataDisks": [
+                    {
+                      "lun": 0,
+                      "name": "[variables('vm01DiskName')]",
+                      "createOption": "Attach",
+                      "managedDisk": {
+                        "id": "[resourceId('Microsoft.Compute/disks', variables('vm01DiskName'))]"
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[variables('vm01Name')]",
+                  "adminUsername": "[parameters('username')]",
+                  "adminPassword": "[parameters('password')]",
+                  "windowsConfiguration": {
+                    "enableAutomaticUpdates": true
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vm01NICName'))]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "vm01Disk",
+                "vm01NIC"
+              ]
+            },
+            "vm01Autoshutdown": {
+              "condition": "[parameters('deployVm01')]",
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[variables('vm01AutoshutdownName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "timeZoneId": "UTC",
+                "dailyRecurrence": {
+                  "time": "20:00"
+                },
+                "notificationSettings": {
+                  "status": "Disabled"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm01Name'))]"
+              },
+              "dependsOn": [
+                "vm01"
+              ]
+            },
+            "vm02Disk": {
+              "condition": "[parameters('deployVm02')]",
+              "type": "Microsoft.Compute/disks",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm02DiskName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "creationData": {
+                  "createOption": "Empty"
+                },
+                "diskSizeGB": 128
+              }
+            },
+            "vm02NIC": {
+              "condition": "[parameters('deployVm02')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vm02NICName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spoke02Name'), 'default')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "spoke02vnet"
+              ]
+            },
+            "vm02": {
+              "condition": "[parameters('deployVm02')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm02Name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('virtualMachineSKU')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "2019-Datacenter",
+                    "version": "latest"
+                  },
+                  "dataDisks": [
+                    {
+                      "lun": 0,
+                      "name": "[variables('vm02DiskName')]",
+                      "createOption": "Attach",
+                      "managedDisk": {
+                        "id": "[resourceId('Microsoft.Compute/disks', variables('vm02DiskName'))]"
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[variables('vm02Name')]",
+                  "adminUsername": "[parameters('username')]",
+                  "adminPassword": "[parameters('password')]",
+                  "windowsConfiguration": {
+                    "enableAutomaticUpdates": true
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vm02NICName'))]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "vm02Disk",
+                "vm02NIC"
+              ]
+            },
+            "vm02Autoshutdown": {
+              "condition": "[parameters('deployVm02')]",
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[variables('vm02AutoshutdownName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "timeZoneId": "UTC",
+                "dailyRecurrence": {
+                  "time": "20:00"
+                },
+                "notificationSettings": {
+                  "status": "Disabled"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm02Name'))]"
+              },
+              "dependsOn": [
+                "vm02"
+              ]
+            },
+            "vm03Disk": {
+              "condition": "[parameters('deployVm03')]",
+              "type": "Microsoft.Compute/disks",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm03DiskName')]",
+              "location": "[parameters('locationSpoke03')]",
+              "properties": {
+                "creationData": {
+                  "createOption": "Empty"
+                },
+                "diskSizeGB": 128
+              }
+            },
+            "vm03NIC": {
+              "condition": "[parameters('deployVm03')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('vm03NICName')]",
+              "location": "[parameters('locationSpoke03')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('spoke03Name'), 'default')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "spoke03vnet"
+              ]
+            },
+            "vm03": {
+              "condition": "[parameters('deployVm03')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2019-07-01",
+              "name": "[variables('vm03Name')]",
+              "location": "[parameters('locationSpoke03')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('virtualMachineSKU')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                    "offer": "WindowsServer",
+                    "sku": "2019-Datacenter",
+                    "version": "latest"
+                  },
+                  "dataDisks": [
+                    {
+                      "lun": 0,
+                      "name": "[variables('vm03DiskName')]",
+                      "createOption": "Attach",
+                      "managedDisk": {
+                        "id": "[resourceId('Microsoft.Compute/disks', variables('vm03DiskName'))]"
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[variables('vm03Name')]",
+                  "adminUsername": "[parameters('username')]",
+                  "adminPassword": "[parameters('password')]",
+                  "windowsConfiguration": {
+                    "enableAutomaticUpdates": true
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vm03NICName'))]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "vm03Disk",
+                "vm03NIC"
+              ]
+            },
+            "vm03Autoshutdown": {
+              "condition": "[parameters('deployVm03')]",
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[variables('vm03AutoshutdownName')]",
+              "location": "[parameters('locationSpoke03')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "timeZoneId": "UTC",
+                "dailyRecurrence": {
+                  "time": "20:00"
+                },
+                "notificationSettings": {
+                  "status": "Disabled"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm03Name'))]"
+              },
+              "dependsOn": [
+                "vm03"
+              ]
+            }
+          },
+          "outputs": {
+            "hubVnet": {
+              "type": "object",
+              "value": "[reference('hubLabVnet', '2019-09-01', 'full')]"
+            },
+            "spoke01Vnet": {
+              "type": "object",
+              "value": "[reference('spoke01vnet', '2019-09-01', 'full')]"
+            },
+            "spoke02Vnet": {
+              "type": "object",
+              "value": "[reference('spoke02vnet', '2019-09-01', 'full')]"
+            },
+            "spoke03Vnet": {
+              "type": "object",
+              "value": "[reference('spoke03vnet', '2019-09-01', 'full')]"
+            },
+            "firewallTier": {
+              "type": "string",
+              "allowedValues": [
+                "Basic",
+                "Premium",
+                "Standard"
+              ],
+              "value": "[parameters('firewallTier')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "any-to-any-deploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "firewallTier": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy'), '2022-09-01').outputs.firewallTier.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "9463601351287531263"
+            }
+          },
+          "parameters": {
+            "firewallTier": {
+              "type": "string",
+              "defaultValue": "Premium",
+              "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+              ],
+              "metadata": {
+                "description": "Basic, Standard or Premium tier"
+              }
+            },
+            "disableBgpRoutePropagation": {
+              "type": "bool",
+              "defaultValue": false
+            },
+            "allowIpAddresses": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Additional IP addresses or subnets to add in the firewall rules"
+              }
+            }
+          },
+          "variables": {
+            "routeTables_all_to_firewall_we_name": "all-to-firewall-we",
+            "routeTables_all_to_firewall_ne_name": "all-to-firewall-ne",
+            "hubName": "hub-lab-net",
+            "spoke01Name": "spoke-01",
+            "spoke02Name": "spoke-02",
+            "spoke03Name": "spoke-03",
+            "locationWE": "westeurope",
+            "locationNE": "northeurope",
+            "firewallName": "lab-firewall",
+            "firewallIPName": "lab-firewall-ip",
+            "firewallIpAddress": "10.12.0.4"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-05-01",
+              "name": "[variables('routeTables_all_to_firewall_we_name')]",
+              "location": "[variables('locationWE')]",
+              "properties": {
+                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
+                "routes": [
+                  {
+                    "name": "all-to-firewall-we",
+                    "properties": {
+                      "addressPrefix": "0.0.0.0/0",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallIpAddress')]"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-05-01",
+              "name": "gateway-route",
+              "location": "[variables('locationWE')]",
+              "properties": {
+                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
+                "routes": [
+                  {
+                    "name": "spoke-01",
+                    "properties": {
+                      "addressPrefix": "10.13.1.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallIpAddress')]"
+                    }
+                  },
+                  {
+                    "name": "spoke-02",
+                    "properties": {
+                      "addressPrefix": "10.13.2.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallIpAddress')]"
+                    }
+                  },
+                  {
+                    "name": "spoke-03",
+                    "properties": {
+                      "addressPrefix": "10.13.3.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallIpAddress')]"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-05-01",
+              "name": "[variables('routeTables_all_to_firewall_ne_name')]",
+              "location": "[variables('locationNE')]",
+              "properties": {
+                "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
+                "routes": [
+                  {
+                    "name": "all-to-firewall-ne",
+                    "properties": {
+                      "addressPrefix": "0.0.0.0/0",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallIpAddress')]"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/default', variables('spoke01Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.1.0/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/services', variables('spoke01Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.1.64/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/default', variables('spoke01Name')), '/')[0], split(format('{0}/default', variables('spoke01Name')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/default', variables('spoke02Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.2.0/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/services', variables('spoke02Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.2.64/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_we_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/default', variables('spoke02Name')), '/')[0], split(format('{0}/default', variables('spoke02Name')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/default', variables('spoke03Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.3.0/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_ne_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_ne_name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/services', variables('spoke03Name'))]",
+              "properties": {
+                "addressPrefix": "10.13.3.64/26",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_ne_name'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', variables('routeTables_all_to_firewall_ne_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/default', variables('spoke03Name')), '/')[0], split(format('{0}/default', variables('spoke03Name')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/GatewaySubnet', variables('hubName'))]",
+              "properties": {
+                "addressPrefix": "10.12.4.0/24",
+                "routeTable": {
+                  "id": "[resourceId('Microsoft.Network/routeTables', 'gateway-route')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', 'gateway-route')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('firewallIPName')]",
+              "location": "[variables('locationWE')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            {
+              "type": "Microsoft.Network/azureFirewalls",
+              "apiVersion": "2022-07-01",
+              "name": "[variables('firewallName')]",
+              "location": "[variables('locationWE')]",
+              "properties": {
+                "sku": {
+                  "name": "AZFW_VNet",
+                  "tier": "[parameters('firewallTier')]"
+                },
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('hubName'), 'AzureFirewallSubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIPName'))]"
+                      }
+                    }
+                  }
+                ],
+                "firewallPolicy": {
+                  "id": "[reference(resourceId('Microsoft.Resources/deployments', 'fwPolicyDeploy'), '2022-09-01').outputs.policyid.value]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIPName'))]",
+                "[resourceId('Microsoft.Resources/deployments', 'fwPolicyDeploy')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "fwPolicyDeploy",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "firewallTier": {
+                    "value": "[parameters('firewallTier')]"
+                  },
+                  "locationWE": {
+                    "value": "[variables('locationWE')]"
+                  },
+                  "allowIpAddresses": {
+                    "value": "[parameters('allowIpAddresses')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "5397074882225188186"
+                    }
+                  },
+                  "parameters": {
+                    "allowIpAddresses": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "locationWE": {
+                      "type": "string",
+                      "defaultValue": "westeurope"
+                    },
+                    "firewallTier": {
+                      "type": "string",
+                      "defaultValue": "Premium",
+                      "allowedValues": [
+                        "Basic",
+                        "Standard",
+                        "Premium"
+                      ],
+                      "metadata": {
+                        "description": "Basic, Standard or Premium tier"
+                      }
+                    }
+                  },
+                  "variables": {
+                    "ipGroups_all_spokes_subnets_name": "all-spokes-subnets",
+                    "firewallPolicyName": "my-firewall-policy",
+                    "ipGroupAddresses": "[concat(createArray('10.13.1.0/24', '10.13.2.0/24', '10.13.3.0/24'), parameters('allowIpAddresses'))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/ipGroups",
+                      "apiVersion": "2020-05-01",
+                      "name": "[variables('ipGroups_all_spokes_subnets_name')]",
+                      "location": "[parameters('locationWE')]",
+                      "properties": {
+                        "ipAddresses": "[variables('ipGroupAddresses')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies",
+                      "apiVersion": "2020-05-01",
+                      "name": "[variables('firewallPolicyName')]",
+                      "location": "[parameters('locationWE')]",
+                      "properties": {
+                        "threatIntelMode": "Alert",
+                        "sku": {
+                          "tier": "Premium"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2022-07-01",
+                      "name": "[format('{0}/{1}', variables('firewallPolicyName'), 'DefaultApplicationRuleCollectionGroup')]",
+                      "properties": {
+                        "priority": 300,
+                        "ruleCollections": [
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "rules": [
+                              {
+                                "ruleType": "ApplicationRule",
+                                "name": "allow-internet-traffic-out",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                  "*"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [
+                                  "[resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))]"
+                                ]
+                              }
+                            ],
+                            "name": "internet-out-collection",
+                            "priority": 200
+                          },
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Deny"
+                            },
+                            "rules": "[if(equals(parameters('firewallTier'), 'Basic'), null(), createArray(createObject('ruleType', 'ApplicationRule', 'name', 'block-porn-sites', 'protocols', createArray(createObject('protocolType', 'Http', 'port', 80), createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray('Nudity', 'PornographyAndSexuallyExplicit', 'ChildInappropriate'), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray(resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))))))]",
+                            "name": "block-some-stuff",
+                            "priority": 150
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))]",
+                        "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2020-05-01",
+                      "name": "[format('{0}/{1}', variables('firewallPolicyName'), 'DefaultNetworkRuleCollectionGroup')]",
+                      "properties": {
+                        "priority": 300,
+                        "ruleCollections": [
+                          {
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "name": "any-to-any-collection",
+                            "priority": 1000,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "rules": [
+                              {
+                                "ruleType": "NetworkRule",
+                                "name": "allow-spoke-to-spoke-traffic",
+                                "ipProtocols": [
+                                  "Any"
+                                ],
+                                "sourceIpGroups": [
+                                  "[resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))]"
+                                ],
+                                "destinationPorts": [
+                                  "*"
+                                ],
+                                "destinationIpGroups": [
+                                  "[resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))]"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/ipGroups', variables('ipGroups_all_spokes_subnets_name'))]",
+                        "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]",
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', variables('firewallPolicyName'), 'DefaultApplicationRuleCollectionGroup')]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "policyid": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "aks-deploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[variables('location')]"
+          },
+          "clusterName": {
+            "value": "[variables('clusterName')]"
+          },
+          "subnetID": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy'), '2022-09-01').outputs.spoke01Vnet.value.properties.subnets[0].id]"
+          },
+          "availabilityZones": {
+            "value": [
+              "2"
+            ]
+          },
+          "usePrivateApiServer": {
+            "value": true
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "10650437207700365875"
+            }
+          },
+          "parameters": {
+            "clusterName": {
+              "type": "string",
+              "defaultValue": "aks-01"
+            },
+            "usePrivateApiServer": {
+              "type": "bool",
+              "defaultValue": false
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "subnetID": {
+              "type": "string"
+            },
+            "useNetworkOverlay": {
+              "type": "bool",
+              "defaultValue": false
+            },
+            "nodeCount": {
+              "type": "int",
+              "defaultValue": 1
+            },
+            "nodeVMSize": {
+              "type": "string",
+              "defaultValue": "Standard_D2s_v3"
+            },
+            "availabilityZones": {
+              "type": "array",
+              "defaultValue": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "dnsPrefix": {
+              "type": "string",
+              "defaultValue": "cl01"
+            },
+            "nodeResourceGroup": {
+              "type": "string",
+              "defaultValue": "[format('{0}-{1}-{2}-rg', parameters('dnsPrefix'), parameters('clusterName'), utcNow())]"
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {
+                "environment": "production",
+                "projectCode": "xyz"
+              }
+            },
+            "kubeVersion": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "logAnalyticsWorkspace": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "useAzureADRBAC": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "variables": {
+            "nodePoolName": "systempool"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerService/managedClusters",
+              "apiVersion": "2023-03-01",
+              "name": "[parameters('clusterName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "kubernetesVersion": "[if(not(empty(parameters('kubeVersion'))), parameters('kubeVersion'), null())]",
+                "enableRBAC": "[parameters('useAzureADRBAC')]",
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                  {
+                    "availabilityZones": "[parameters('availabilityZones')]",
+                    "name": "[variables('nodePoolName')]",
+                    "count": "[parameters('nodeCount')]",
+                    "mode": "System",
+                    "vmSize": "[parameters('nodeVMSize')]",
+                    "type": "VirtualMachineScaleSets",
+                    "osType": "Linux",
+                    "enableAutoScaling": false,
+                    "vnetSubnetID": "[parameters('subnetID')]"
+                  }
+                ],
+                "apiServerAccessProfile": {
+                  "enablePrivateCluster": "[parameters('usePrivateApiServer')]"
+                },
+                "servicePrincipalProfile": {
+                  "clientId": "msi"
+                },
+                "nodeResourceGroup": "[parameters('nodeResourceGroup')]",
+                "networkProfile": {
+                  "networkPlugin": "azure",
+                  "loadBalancerSku": "standard",
+                  "networkPluginMode": "[if(parameters('useNetworkOverlay'), 'overlay', null())]"
+                },
+                "addonProfiles": {
+                  "omsagent": {
+                    "config": {
+                      "logAnalyticsWorkspaceResourceID": "[if(not(empty(parameters('logAnalyticsWorkspace'))), parameters('logAnalyticsWorkspace'), null())]"
+                    },
+                    "enabled": "[if(not(empty(parameters('logAnalyticsWorkspace'))), true(), false())]"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "aksid": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+            },
+            "apiServerAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01').privateFQDN]"
+            },
+            "aksnodesrg": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01').nodeResourceGroup]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy')]"
+      ]
+    }
+  ]
+}
