@@ -89,6 +89,21 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   }
 }
 
-output aksid string = aks.id
-output apiServerAddress string = aks.properties.privateFQDN
-output aksnodesrg string = aks.properties.nodeResourceGroup
+var subnetArray = split(subnetID, '/')
+var vnetName = subnetArray[length(subnetArray)-3]
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-11-01' existing = {
+  name: vnetName
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  dependsOn: [virtualNetwork]
+  scope: resourceGroup()
+  name: guid('aks-vnet')
+  properties: {
+    roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'//contributor
+    principalId: aks.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+output aks object = aks
+output kubeconfig string = aks.listClusterAdminCredential().kubeconfigs[0].value //this is the only way (as of now) to pass a reference to the credentials at compile time. Because TYPE CAST in Bicep is still not available
