@@ -1,4 +1,4 @@
-<h1 align="center">the AKS (Azure Kubernetes Service)🤯 playground </h1>
+<h1 align="center">the AKS (Azure Kubernetes Service) 🤯<br/> playground </h1>
 
 <div align="center">
   <sub>Built with ❤︎ by
