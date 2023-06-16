@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "136371982864530110"
+      "templateHash": "7361395474647445032"
     }
   },
   "variables": {
@@ -23,6 +23,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[variables('location')]"
+          },
+          "locationSpoke03": {
+            "value": "[variables('location')]"
+          },
           "firewallTier": {
             "value": "Premium"
           },
@@ -1012,6 +1018,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "locationWE": {
+            "value": "[variables('location')]"
+          },
+          "locationNE": {
+            "value": "[variables('location')]"
+          },
           "firewallTier": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy'), '2022-09-01').outputs.firewallTier.value]"
           }
@@ -1023,7 +1035,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "9463601351287531263"
+              "templateHash": "262553335280360647"
             }
           },
           "parameters": {
@@ -1049,6 +1061,14 @@
               "metadata": {
                 "description": "Additional IP addresses or subnets to add in the firewall rules"
               }
+            },
+            "locationWE": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "locationNE": {
+              "type": "string",
+              "defaultValue": "northeurope"
             }
           },
           "variables": {
@@ -1058,8 +1078,6 @@
             "spoke01Name": "spoke-01",
             "spoke02Name": "spoke-02",
             "spoke03Name": "spoke-03",
-            "locationWE": "westeurope",
-            "locationNE": "northeurope",
             "firewallName": "lab-firewall",
             "firewallIPName": "lab-firewall-ip",
             "firewallIpAddress": "10.12.0.4"
@@ -1069,7 +1087,7 @@
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-05-01",
               "name": "[variables('routeTables_all_to_firewall_we_name')]",
-              "location": "[variables('locationWE')]",
+              "location": "[parameters('locationWE')]",
               "properties": {
                 "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                 "routes": [
@@ -1088,7 +1106,7 @@
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-05-01",
               "name": "gateway-route",
-              "location": "[variables('locationWE')]",
+              "location": "[parameters('locationWE')]",
               "properties": {
                 "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                 "routes": [
@@ -1123,7 +1141,7 @@
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-05-01",
               "name": "[variables('routeTables_all_to_firewall_ne_name')]",
-              "location": "[variables('locationNE')]",
+              "location": "[parameters('locationNE')]",
               "properties": {
                 "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                 "routes": [
@@ -1243,7 +1261,7 @@
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2019-09-01",
               "name": "[variables('firewallIPName')]",
-              "location": "[variables('locationWE')]",
+              "location": "[parameters('locationWE')]",
               "sku": {
                 "name": "Standard"
               },
@@ -1255,7 +1273,7 @@
               "type": "Microsoft.Network/azureFirewalls",
               "apiVersion": "2022-07-01",
               "name": "[variables('firewallName')]",
-              "location": "[variables('locationWE')]",
+              "location": "[parameters('locationWE')]",
               "properties": {
                 "sku": {
                   "name": "AZFW_VNet",
@@ -1297,7 +1315,7 @@
                     "value": "[parameters('firewallTier')]"
                   },
                   "locationWE": {
-                    "value": "[variables('locationWE')]"
+                    "value": "[parameters('locationWE')]"
                   },
                   "allowIpAddresses": {
                     "value": "[parameters('allowIpAddresses')]"
@@ -1500,11 +1518,11 @@
           },
           "availabilityZones": {
             "value": [
-              "2"
+              "1"
             ]
           },
           "usePrivateApiServer": {
-            "value": true
+            "value": false
           }
         },
         "template": {
@@ -1514,7 +1532,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "10650437207700365875"
+              "templateHash": "775211741727374315"
             }
           },
           "parameters": {
@@ -1582,7 +1600,9 @@
             }
           },
           "variables": {
-            "nodePoolName": "systempool"
+            "nodePoolName": "systempool",
+            "subnetArray": "[split(parameters('subnetID'), '/')]",
+            "vnetName": "[variables('subnetArray')[sub(length(variables('subnetArray')), 3)]]"
           },
           "resources": [
             {
@@ -1632,26 +1652,243 @@
                   }
                 }
               }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid('aks-vnet')]",
+              "properties": {
+                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+                "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+              ]
             }
           ],
           "outputs": {
-            "aksid": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+            "aks": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01', 'full')]"
             },
-            "apiServerAddress": {
+            "kubeconfig": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01').privateFQDN]"
-            },
-            "aksnodesrg": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01').nodeResourceGroup]"
+              "value": "[listClusterAdminCredential(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-03-01').kubeconfigs[0].value]"
             }
           }
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "buildbicep-deploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "kubeConfig": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'aks-deploy'), '2022-09-01').outputs.kubeconfig.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "18186597337224328789"
+            }
+          },
+          "parameters": {
+            "privateLoadBalancer": {
+              "type": "bool",
+              "defaultValue": false
+            },
+            "kubeConfig": {
+              "type": "securestring"
+            }
+          },
+          "imports": {
+            "kubernetes": {
+              "provider": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "namespace": "default",
+                "kubeConfig": "[parameters('kubeConfig')]"
+              }
+            }
+          },
+          "resources": {
+            "appsDeployment_azureVoteBack": {
+              "import": "kubernetes",
+              "type": "apps/Deployment@v1",
+              "properties": {
+                "metadata": {
+                  "name": "azure-vote-back"
+                },
+                "spec": {
+                  "replicas": 1,
+                  "selector": {
+                    "matchLabels": {
+                      "app": "azure-vote-back"
+                    }
+                  },
+                  "template": {
+                    "metadata": {
+                      "labels": {
+                        "app": "azure-vote-back"
+                      }
+                    },
+                    "spec": {
+                      "nodeSelector": {
+                        "kubernetes.io/os": "linux"
+                      },
+                      "containers": [
+                        {
+                          "name": "azure-vote-back",
+                          "image": "mcr.microsoft.com/oss/bitnami/redis:6.0.8",
+                          "env": [
+                            {
+                              "name": "ALLOW_EMPTY_PASSWORD",
+                              "value": "yes"
+                            }
+                          ],
+                          "resources": {
+                            "requests": {
+                              "cpu": "100m",
+                              "memory": "128Mi"
+                            },
+                            "limits": {
+                              "cpu": "250m",
+                              "memory": "256Mi"
+                            }
+                          },
+                          "ports": [
+                            {
+                              "containerPort": 6379,
+                              "name": "redis"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "coreService_azureVoteBack": {
+              "import": "kubernetes",
+              "type": "core/Service@v1",
+              "properties": {
+                "metadata": {
+                  "name": "azure-vote-back"
+                },
+                "spec": {
+                  "ports": [
+                    {
+                      "port": 6379
+                    }
+                  ],
+                  "selector": {
+                    "app": "azure-vote-back"
+                  }
+                }
+              }
+            },
+            "appsDeployment_azureVoteFront": {
+              "import": "kubernetes",
+              "type": "apps/Deployment@v1",
+              "properties": {
+                "metadata": {
+                  "name": "azure-vote-front"
+                },
+                "spec": {
+                  "replicas": 1,
+                  "selector": {
+                    "matchLabels": {
+                      "app": "azure-vote-front"
+                    }
+                  },
+                  "template": {
+                    "metadata": {
+                      "labels": {
+                        "app": "azure-vote-front"
+                      }
+                    },
+                    "spec": {
+                      "nodeSelector": {
+                        "kubernetes.io/os": "linux"
+                      },
+                      "containers": [
+                        {
+                          "name": "azure-vote-front",
+                          "image": "mcr.microsoft.com/azuredocs/azure-vote-front:v1",
+                          "resources": {
+                            "requests": {
+                              "cpu": "100m",
+                              "memory": "128Mi"
+                            },
+                            "limits": {
+                              "cpu": "250m",
+                              "memory": "256Mi"
+                            }
+                          },
+                          "ports": [
+                            {
+                              "containerPort": 80
+                            }
+                          ],
+                          "env": [
+                            {
+                              "name": "REDIS",
+                              "value": "azure-vote-back"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "coreService_azureVoteFront": {
+              "import": "kubernetes",
+              "type": "core/Service@v1",
+              "properties": {
+                "metadata": {
+                  "name": "azure-vote-front",
+                  "annotations": {
+                    "service.beta.kubernetes.io/azure-load-balancer-internal": "[if(parameters('privateLoadBalancer'), 'true', 'false')]"
+                  }
+                },
+                "spec": {
+                  "type": "LoadBalancer",
+                  "ports": [
+                    {
+                      "port": 80
+                    }
+                  ],
+                  "selector": {
+                    "app": "azure-vote-front"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'aks-deploy')]"
       ]
     }
   ]
