@@ -29,7 +29,7 @@ module aksDeploy '../default/default-aks.bicep' = {
         usePrivateApiServer: false
     }
 }
-module kubernetes './sample-aks.bicep' = {
+module kubernetes './sample-aks-workload.bicep' = {
   name: 'buildbicep-deploy'
   params: {
     kubeConfig: aksDeploy.outputs.kubeconfig
