@@ -33,7 +33,7 @@ module aksDeploy '../aks/aks.bicep' = {
   params: {
     location: location
     clusterName: clusterName
-    subnetID: hubSpokeDeploy.outputs.spoke01Vnet.properties.subnets[0].id
+    subnetID: hubSpokeDeploy.outputs.spoke01Vnet.properties.subnets[1].id
     availabilityZones: [ '3' ]
     usePrivateApiServer: false
   }

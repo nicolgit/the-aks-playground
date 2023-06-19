@@ -46,3 +46,16 @@ the ARM template [xxx](hub-01-bicep/xxx.json) deploys:
 * An Azure Firewall **premium** on the `hub-lab-net`  network
 * `aks-01`: an Azure Kubernetes cluster deployed on a `spoke-01` subnet
 
+## Playground's scenarios
+Here there is a list of tested scenarios usable on this playground.
+
+For each scenario you have:
+
+* **prerequisites**: component to deploy required to implement the solution (only the hub, also one on-prem playground or both)
+* **solution**: a step-by-step sequence to implement the solution
+* **test solution**: a procedure to follow, to verify if the scenario is working as expected
+
+
+| | scenario description | solution |
+|---|---|---|
+| 1 | Deploy a confidential computing nodes pool | go to the scenario |

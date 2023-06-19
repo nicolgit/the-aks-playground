@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "7361395474647445032"
+      "templateHash": "17083192587386849859"
     }
   },
   "variables": {
@@ -1514,11 +1514,11 @@
             "value": "[variables('clusterName')]"
           },
           "subnetID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy'), '2022-09-01').outputs.spoke01Vnet.value.properties.subnets[0].id]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub-spoke-deploy'), '2022-09-01').outputs.spoke01Vnet.value.properties.subnets[1].id]"
           },
           "availabilityZones": {
             "value": [
-              "1"
+              "3"
             ]
           },
           "usePrivateApiServer": {
