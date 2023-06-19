@@ -58,4 +58,4 @@ For each scenario you have:
 
 | | scenario description | solution |
 |---|---|---|
-| 1 | Deploy a confidential computing nodes pool | [go to scenario documentation](scenarios/confidential-01.md) |
+| 1 | Deploy a confidential computing nodes pool | [see the documentation](scenarios/confidential-01.md) |
