@@ -46,7 +46,7 @@ the ARM template [xxx](hub-01-bicep/xxx.json) deploys:
 * An Azure Firewall **premium** on the `hub-lab-net`  network
 * `aks-01`: an Azure Kubernetes cluster deployed on a `spoke-01` subnet
 
-[visio detailed]
+![detailed architecture](images/architecture-detail.png)
 
 ## Playground's scenarios
 Here there is a list of tested scenarios usable on this playground.
