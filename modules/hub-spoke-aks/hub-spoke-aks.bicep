@@ -9,7 +9,7 @@ module hubSpokeDeploy '../../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep'
     location: location
     locationSpoke03: location
     firewallTier: 'Premium'
-    deployBastion: false
+    deployBastion: true
     deployGateway: false
     deployVmHub: false
     deployVm01: false

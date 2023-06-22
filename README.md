@@ -30,7 +30,7 @@ You can use the following button to deploy the demo to your Azure subscription:
 
 This diagram shows a detailed version with also all subnets, virtual machines, NVAs, IPs and Firewalls.
 
-[DRAWIO detailed schema]
+![hub and spoke](images/architecture-h-and-s.png)
 
 the ARM template [xxx](hub-01-bicep/xxx.json) deploys:
 
@@ -45,6 +45,8 @@ the ARM template [xxx](hub-01-bicep/xxx.json) deploys:
     * `spoke-03` with 2 subnets and located in North Europe
 * An Azure Firewall **premium** on the `hub-lab-net`  network
 * `aks-01`: an Azure Kubernetes cluster deployed on a `spoke-01` subnet
+
+[visio detailed]
 
 ## Playground's scenarios
 Here there is a list of tested scenarios usable on this playground.
