@@ -5,6 +5,7 @@
   <a href="https://github.com/nicolgit">nicolgit</a>,  <a href="https://github.com/lucapisano">lucapisano</a> and  <a href="https://github.com/mela125">mela125</a>
   </a>
 </div>
+<br/><br/>
 
 ![hub and spoke](images/architecture-h-and-s.png)
 
