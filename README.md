@@ -6,7 +6,7 @@
   </a>
 </div>
 
-[DRAWIO FILE HERE]
+![hub and spoke](images/architecture-h-and-s.png)
 
 This repo contains a preconfigured Azure Kubernetes Service cluster embedded inside an hub-and-spoke network topology, aligned to the Azure enterprise-scale landing zone reference architecture, useful for testing and studying network configurations in a controlled, repeatable environment.
 
@@ -30,23 +30,24 @@ You can use the following button to deploy the demo to your Azure subscription:
 
 This diagram shows a detailed version with also all subnets, virtual machines, NVAs, IPs and Firewalls.
 
-![hub and spoke](images/architecture-h-and-s.png)
+![detailed architecture](images/architecture-detail.png)
 
-the ARM template [xxx](hub-01-bicep/xxx.json) deploys:
+the ARM template [hub-spoke-aks.json](modules-arm/hub-spoke-aks.json) deploys:
 
 * 4 Azure Virtual Networks:
     * `hub-lab-net` with 4 subnets:
-        * default subnet: this subnet is used to connect the hub-vm-01 machine
-        * AzureFirewallSubet: this subnet is used by Azure Firewall
-        * AzureBastionSubnet: this subnet is used bu Azure Bastion
-        * GatewaySubnet: this subnet is used by Azure Gateway
-    * `spoke-01` with 2 subnets 
-    * `spoke-02` with 2 subnets 
-    * `spoke-03` with 2 subnets and located in North Europe
-* An Azure Firewall **premium** on the `hub-lab-net`  network
-* `aks-01`: an Azure Kubernetes cluster deployed on a `spoke-01` subnet
-
-![detailed architecture](images/architecture-detail.png)
+        * an empty `default` subnet 
+        * AzureFirewallSubet: a subnet is used by Azure Firewall
+        * AzureBastionSubnet: a subnet is used by Azure Bastion
+        * GatewaySubnet: a subnet ready to deploy an by Azure Virtual Network Gateway
+    * `spoke-01` with 2 subnets `default` and `services`
+    * `spoke-02` with 2 subnets `default` and `services`
+    * `spoke-03` with 2 subnets `default` and `services`
+* `lab-firewall`: an Azure Firewall **premium** on the `hub-lab-net`  network
+* `my-firewall-policy`: a sample policy that implements the any-to-any routing between spokes and all the internet traffic outbound
+* `all-to-firewall-we` and `all-to-firewall-ne`: route tables that forward all the outbound traffic through the central Azure Firewall
+* `hub-playground-ws`: a log analytics workspace where to collect all firewall logs
+* `aks-01`: an Azure Kubernetes Service cluster deployed on `services` `spoke-01` subnet
 
 ## Playground's scenarios
 Here there is a list of tested scenarios usable on this playground.

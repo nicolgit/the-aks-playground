@@ -415,3 +415,8 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 #END OF VS
+
+
+*.bkp
+*.dtmp
+
