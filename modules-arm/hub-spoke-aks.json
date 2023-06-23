@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "17083192587386849859"
+      "templateHash": "2558052345738211477"
     }
   },
   "variables": {
@@ -33,7 +33,7 @@
             "value": "Premium"
           },
           "deployBastion": {
-            "value": false
+            "value": true
           },
           "deployGateway": {
             "value": false
