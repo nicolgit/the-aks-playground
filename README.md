@@ -63,3 +63,10 @@ For each scenario you have:
 | | scenario description | solution |
 |---|---|---|
 | 1 | Deploy a confidential computing nodes pool | [see the documentation](scenarios/confidential-01.md) |
+| 2 | Expose a kubernetes service with Azure Front Door | [see the documentation](scenarios/front-door.md) |
+
+
+
+
+
+

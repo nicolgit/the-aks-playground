@@ -3,12 +3,12 @@
 ## Pre-requisites
 
 To implement this scenario, you need 
-* a resource group called play-aks
+* a resource group called `play-aks`
 * a terminal shell with Azure CLI already connected to your subscription
 
 ## Architecture
 
-![architecture](../images/front-door/FrontDoor.png)
+![architecture](../images/front-door/front-door.png)
 
 ## Solution
 
@@ -22,6 +22,7 @@ Open a Terminal and execute the following command:
 ```
 az deployment group create --resource-group play-aks --template-file front-door-1.bicep
 ```
+
 You'll see the following resources provisioned to your resource group
 
 ![resources](../images/front-door/resources.png)
@@ -49,6 +50,8 @@ To approve the request, go to the Azure Portal -> Private Link Service. There yo
 
 ![approve-pls](../images/front-door/approve-pls.png)
 
-Once approved, after a few seconds, you'll be able to reach you pod, **served by Front Door!** 🎉
+# Test scenario
+
+Once approved, go to your Azure Front Door instance `aks-fd`, copy the endpoint hostname (something like `aks-afd-j6nwrw4dffkkq-e8hrbed2ere6gzb8.z01.azurefd.net`), open your local browser and paste the URL: You'll be able to reach you pod, **served by Front Door!** 🎉
 
 ![result](../images/front-door/result.png)
