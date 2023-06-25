@@ -1,0 +1,121 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.18.4.5664",
+      "templateHash": "7449078717699916358"
+    }
+  },
+  "variables": {
+    "privateLinkServiceName": "pl-aks-01",
+    "location": "westeurope",
+    "clusterName": "aks-01",
+    "clusterResourceGroup": "[format('cl01-{0}-rg', variables('clusterName'))]",
+    "frontDoorProfileName": "aks-fd",
+    "frontDoorOriginGroupName": "aks-origin-group",
+    "frontDoorOriginName": "aks-origin",
+    "frontDoorRouteName": "aks-route",
+    "frontDoorSkuName": "Premium_AzureFrontDoor",
+    "frontDoorEndpointName": "[format('aks-afd-{0}', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('frontDoorProfileName')]",
+      "location": "global",
+      "sku": {
+        "name": "[variables('frontDoorSkuName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', variables('frontDoorProfileName'), variables('frontDoorEndpointName'))]",
+      "location": "global",
+      "properties": {
+        "enabledState": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', variables('frontDoorProfileName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'))]",
+      "properties": {
+        "loadBalancingSettings": {
+          "sampleSize": 4,
+          "successfulSamplesRequired": 3
+        },
+        "healthProbeSettings": {
+          "probePath": "/",
+          "probeRequestType": "GET",
+          "probeProtocol": "Http",
+          "probeIntervalInSeconds": 100
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', variables('frontDoorProfileName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups/origins",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'), variables('frontDoorOriginName'))]",
+      "properties": {
+        "hostName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('clusterResourceGroup')), 'Microsoft.Network/privateLinkServices', variables('privateLinkServiceName')), '2022-11-01').alias]",
+        "httpPort": 80,
+        "httpsPort": 443,
+        "originHostHeader": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('clusterResourceGroup')), 'Microsoft.Network/privateLinkServices', variables('privateLinkServiceName')), '2022-11-01').alias]",
+        "priority": 1,
+        "weight": 1000,
+        "sharedPrivateLinkResource": {
+          "privateLinkLocation": "[variables('location')]",
+          "privateLink": {
+            "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('clusterResourceGroup')), 'Microsoft.Network/privateLinkServices', variables('privateLinkServiceName'))]"
+          },
+          "requestMessage": "[variables('clusterName')]",
+          "status": "Approved"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('frontDoorProfileName'), variables('frontDoorEndpointName'), variables('frontDoorRouteName'))]",
+      "properties": {
+        "originGroup": {
+          "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'))]"
+        },
+        "supportedProtocols": [
+          "Http",
+          "Https"
+        ],
+        "patternsToMatch": [
+          "/*"
+        ],
+        "forwardingProtocol": "HttpOnly",
+        "linkToDefaultDomain": "Enabled",
+        "httpsRedirect": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', variables('frontDoorProfileName'), variables('frontDoorEndpointName'))]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups/origins', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'), variables('frontDoorOriginName'))]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', variables('frontDoorProfileName'), variables('frontDoorOriginGroupName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "frontDoorEndpointHostName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/afdEndpoints', variables('frontDoorProfileName'), variables('frontDoorEndpointName')), '2023-05-01').hostName]"
+    }
+  }
+}

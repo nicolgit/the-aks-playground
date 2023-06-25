@@ -1,0 +1,1 @@
+Da spiegare come salgono più LB in base alle annotation dello YAML: da verificare se portare come scenario autonomo

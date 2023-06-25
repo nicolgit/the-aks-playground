@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.18.4.5664",
+      "templateHash": "12689372997683497355"
+    }
+  },
+  "variables": {
+    "nodeResourceGroup": "cl01-aks-01-20230621T083306Z-rg",
+    "privateLinkServiceName": "aks-pls",
+    "location": "westeurope"
+  },
+  "resources": [],
+  "outputs": {
+    "plAlias": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('nodeResourceGroup')), 'Microsoft.Network/privateLinkServices', variables('privateLinkServiceName')), '2022-11-01').alias]"
+    }
+  }
+}
