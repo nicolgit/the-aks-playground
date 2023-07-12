@@ -18,12 +18,14 @@ module hubSpokeDeploy '../../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep'
   }
 }
 
+
+
 module anyToAnyDeploy '../../hub-and-spoke-playground/any-to-any-bicep/any-to-any.bicep' = {
   name: 'any-to-any-deploy'
   params: {
     locationWE: location
     locationNE: location
-    firewallTier: hubSpokeDeploy.outputs.firewallTier
+    firewallTier: any(hubSpokeDeploy.outputs.firewallTier)
   }
 }
 
