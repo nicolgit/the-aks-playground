@@ -21,12 +21,13 @@ _Download the [draw.io file](../images/firewall-01.drawio) of this schema._
 # Step 1 - get the Azure Firewall public IP Address
 Go to Azure portal > Firewalls > `lab-firewall` > Firewall public IP > `lab-firewall-ip` > IP Address > IP (**x.x.x.x**)
 
-# Step 2 - get the the IP of the front-end pod
-Go to Azure Portal > `aks-01` > Workloads > `azure-vote-front` > pods > `azure-vote-front-##########-#####` > Pod IP (**y.y.y.y**) 
+# Step 2 - get the the IP of the front-end internal load balancer
+Go to Azure Portal > `aks-01` > Services and ingresses > `azure-vote-front` > Services > `azure-vote-front` > External IP (**10.13.1.y**)
+_Please note that the IP is a private IP, even if the label states 'External IP'. External in this context refers to the IP given to the Azure load balancer instance, while Internal refers to the Kubernetes assigned IP only reachable from inside the cluster._
 
 # Step 3 - configure Azure Firewall DNAT policy
 
-Go to Azure Portal > `hub-firewall-policy` > DNAT Rules > Add Rule Collection
+Go to Azure Portal > `my-firewall-policy` > DNAT Rules > Add Rule Collection
 * Name: `my-dnat-rule-collection`
 * Collection Type: `DNAT`
 * priority: `1000`
@@ -38,7 +39,7 @@ Go to Azure Portal > `hub-firewall-policy` > DNAT Rules > Add Rule Collection
 * Destination Type: `IP`
 * Destination IP: **x.x.x.x** (public IP)
 * Translated type: `IP`
-* Translated IP: **y.y.y.y** (pod IP)
+* Translated IP: **y.y.y.y** (load balancer IP)
 * Translated port: `80`
 * click **Add**
 
