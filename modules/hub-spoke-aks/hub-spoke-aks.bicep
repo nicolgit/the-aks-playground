@@ -3,6 +3,14 @@
 
 var clusterName = 'aks-01'
 var location = 'westeurope'
+@description('username administrator for all VMs')
+param username string = 'nicola'
+
+@description('username administrator password for all VMs')
+@secure()
+param password string = 'password.123'
+
+
 module hubSpokeDeploy '../../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep' = {
   name: 'hub-spoke-deploy'
   params: {
@@ -11,14 +19,14 @@ module hubSpokeDeploy '../../hub-and-spoke-playground/hub-01-bicep/hub-01.bicep'
     firewallTier: 'Premium'
     deployBastion: true
     deployGateway: false
-    deployVmHub: false
+    deployVmHub: true
     deployVm01: false
     deployVm02: false
     deployVm03: false
+    username: username
+    password: password
   }
 }
-
-
 
 module anyToAnyDeploy '../../hub-and-spoke-playground/any-to-any-bicep/any-to-any.bicep' = {
   name: 'any-to-any-deploy'

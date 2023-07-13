@@ -50,6 +50,15 @@ the ARM template [hub-spoke-aks.json](modules-arm/hub-spoke-aks.json) deploys:
 * `hub-playground-ws`: a log analytics workspace where to collect all firewall logs
 * `aks-01`: an Azure Kubernetes Service cluster deployed on `services` `spoke-01` subnet
 
+`aks-01` cluster has 1 node pool and 2 sample workload deployed: `azure vote front` and `azure vote back` taken from the [Microsoft Artifact Registry](https://mcr.microsoft.com/): a super-simple front-end/back-end application that exposes a sample UI over HTTP. 
+To test the workload, you need to know the IP of the front-end pod. 
+
+You can find this IP in:
+* Azure Portal > `aks-01` > Workloads > `azure-vote-front` > pods > `azure-vote-front-##########-#####` > pod IP (something like `10.13.1.74`) 
+
+To test it: access to `hub-vm-01` in RDP/bastion and open in Edge `http://x.x.x.x` (where `x.x.x.x` is the IP found above)
+
+
 ## Playground's scenarios
 Here there is a list of tested scenarios usable on this playground.
 

@@ -5,7 +5,23 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "958328507902608017"
+      "templateHash": "2459892969628635166"
+    }
+  },
+  "parameters": {
+    "username": {
+      "type": "string",
+      "defaultValue": "nicola",
+      "metadata": {
+        "description": "username administrator for all VMs"
+      }
+    },
+    "password": {
+      "type": "securestring",
+      "defaultValue": "password.123",
+      "metadata": {
+        "description": "username administrator password for all VMs"
+      }
     }
   },
   "variables": {
@@ -39,7 +55,7 @@
             "value": false
           },
           "deployVmHub": {
-            "value": false
+            "value": true
           },
           "deployVm01": {
             "value": false
@@ -49,6 +65,12 @@
           },
           "deployVm03": {
             "value": false
+          },
+          "username": {
+            "value": "[parameters('username')]"
+          },
+          "password": {
+            "value": "[parameters('password')]"
           }
         },
         "template": {
