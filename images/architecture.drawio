@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-07-13T13:10:54.643Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.3.7 Chrome/112.0.5615.204 Electron/24.5.0 Safari/537.36" etag="O1t0sJ6qQlry0uaeZ0hd" version="21.3.7" type="device">
+<mxfile host="Electron" modified="2023-07-13T14:10:22.783Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.3.7 Chrome/112.0.5615.204 Electron/24.5.0 Safari/537.36" etag="GneAee4p5bWhWyoSyTM-" version="21.3.7" type="device">
   <diagram name="Page-1" id="FFA9UxrkgAWa3RQxIZZn">
     <mxGraphModel dx="2400" dy="1232" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -388,7 +388,7 @@
             <mxRectangle width="60" height="70" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ul5W1kR_rPa234boQEgB-1" value="hub-vm-01&lt;br&gt;10.12.1.4" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;fontColor=#444444;" vertex="1" parent="1">
+        <mxCell id="ul5W1kR_rPa234boQEgB-1" value="hub-vm-01&lt;br&gt;10.12.1.4" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Virtual_Machine.svg;fontColor=#444444;" parent="1" vertex="1">
           <mxGeometry x="200" y="690" width="48.52" height="45" as="geometry" />
         </mxCell>
       </root>

@@ -8,6 +8,7 @@
 <br/><br/>
 
 ![hub and spoke](images/architecture-h-and-s.png)
+_Download the [draw.io file](images/architecture.drawio) of this schema_
 
 This repo contains a preconfigured Azure Kubernetes Service cluster embedded inside an hub-and-spoke network topology, aligned to the Azure enterprise-scale landing zone reference architecture, useful for testing and studying network configurations in a controlled, repeatable environment.
 
@@ -32,6 +33,7 @@ You can use the following button to deploy the demo to your Azure subscription:
 This diagram shows a detailed version with also all subnets, virtual machines, NVAs, IPs and Firewalls.
 
 ![detailed architecture](images/architecture-detail.png)
+_Download the [draw.io file](images/architecture.drawio) of this schema._
 
 the ARM template [hub-spoke-aks.json](modules-arm/hub-spoke-aks.json) deploys:
 
@@ -72,10 +74,7 @@ For each scenario you have:
 | | scenario description | solution |
 |---|---|---|
 | 1 | Deploy a confidential computing nodes pool | [see the documentation](scenarios/confidential-01.md) |
-| 2 | Expose a kubernetes service with Azure Front Door | [see the documentation](scenarios/front-door.md) |
-
-
-
-
+| 2 | Expose a workload from AKS with Azure Front Door | [see the documentation](scenarios/front-door.md) |
+| 3 | Expose a workload from AKS with Azure Firewall | [see the documentation](scenarios/firewall-01.md) |
 
 

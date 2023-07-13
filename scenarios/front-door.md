@@ -1,4 +1,4 @@
-# SCENARIO: Deploy a Front Door to expose AKS services
+# SCENARIO: Deploy a Front Door to expose AKS workload
 
 ## Pre-requisites
 
@@ -12,7 +12,7 @@ To implement this scenario, you need
 
 ## Solution
 
-In this scenario, you'll use 2 .bicep files to deploy the components for the solutions, the [front-door-1.bicep](../front-door/front-door-1.bicep) will deploy the Hub&Spoke networks, the AKS cluster and the Private Link Service. Then the [front-door-2.bicep](../front-door/front-door-2.bicep) will deploy Front Door and connect it to the Private Link Service as an origin.
+In this scenario, you'll use 2 .bicep files to deploy the components for the solutions, the [front-door-1.bicep](../front-door/front-door-1.bicep) will deploy the Hub & Spoke networks, the AKS cluster and the Private Link Service. Then the [front-door-2.bicep](../front-door/front-door-2.bicep) will deploy Front Door and connect it to the Private Link Service as an origin.
 Therefore the only exposed endpoint is Front Door, then traffic flows privately using the Microsoft backbone up to the pod.
 
 **Why I need 2 bicep files?**
