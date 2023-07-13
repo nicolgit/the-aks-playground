@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "2558052345738211477"
+      "templateHash": "958328507902608017"
     }
   },
   "variables": {
@@ -53,14 +53,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "3643799897607885012"
+              "templateHash": "11105476988704294215"
             }
           },
           "parameters": {
@@ -155,10 +153,10 @@
             "vm03DiskName": "[format('{0}-disk', variables('vm03Name'))]",
             "vm03NICName": "[format('{0}-nic', variables('vm03Name'))]",
             "vm03AutoshutdownName": "[format('shutdown-computevm-{0}', variables('vm03Name'))]",
-            "subnets": "[concat(createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', '10.12.4.0/24')), createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', '10.12.0.0/24')), createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', '10.12.2.0/24')), createObject('name', 'DefaultSubnet', 'properties', createObject('addressPrefix', '10.12.1.0/24'))), if(equals(parameters('firewallTier'), 'Basic'), createArray(createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', '10.12.3.0/24', 'privateEndpointNetworkPolicies', 'Enabled', 'privateLinkServiceNetworkPolicies', 'Enabled'))), createArray()))]"
+            "subnets": "[concat(createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', '10.12.4.0/24')), createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', '10.12.3.0/24')), createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', '10.12.2.0/24')), createObject('name', 'DefaultSubnet', 'properties', createObject('addressPrefix', '10.12.1.0/24'))), if(equals(parameters('firewallTier'), 'Basic'), createArray(createObject('name', 'AzureFirewallManagementSubnet', 'properties', createObject('addressPrefix', '10.12.5.0/24', 'privateEndpointNetworkPolicies', 'Enabled', 'privateLinkServiceNetworkPolicies', 'Enabled'))), createArray()))]"
           },
-          "resources": {
-            "hubLabVnet": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2019-09-01",
               "name": "[variables('hublabName')]",
@@ -172,7 +170,7 @@
                 "subnets": "[variables('subnets')]"
               }
             },
-            "spoke01vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2019-09-01",
               "name": "[variables('spoke01Name')]",
@@ -199,7 +197,7 @@
                 ]
               }
             },
-            "spoke02vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2019-09-01",
               "name": "[variables('spoke02Name')]",
@@ -226,7 +224,7 @@
                 ]
               }
             },
-            "spoke03vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2019-09-01",
               "name": "[variables('spoke03Name')]",
@@ -253,7 +251,7 @@
                 ]
               }
             },
-            "peeringHubSpoke01": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke01Name')))]",
@@ -267,11 +265,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke01vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke01Name'))]"
               ]
             },
-            "peeringSpoke01Hub": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('spoke01Name'), format('{0}-to-{1}', variables('spoke01Name'), variables('hublabName')))]",
@@ -285,11 +283,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke01vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke01Name'))]"
               ]
             },
-            "peeringHubSpoke02": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke02Name')))]",
@@ -303,11 +301,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke02vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke02Name'))]"
               ]
             },
-            "peeringSpoke02Hub": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('spoke02Name'), format('{0}-to-{1}', variables('spoke02Name'), variables('hublabName')))]",
@@ -321,11 +319,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke02vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke02Name'))]"
               ]
             },
-            "peeringHubSpoke03": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('hublabName'), format('{0}-to-{1}', variables('hublabName'), variables('spoke03Name')))]",
@@ -339,11 +337,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke03vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke03Name'))]"
               ]
             },
-            "peeringSpoke03Hub": {
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}/{1}', variables('spoke03Name'), format('{0}-to-{1}', variables('spoke03Name'), variables('hublabName')))]",
@@ -357,11 +355,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "spoke03vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke03Name'))]"
               ]
             },
-            "bastionHubIP": {
+            {
               "condition": "[parameters('deployBastion')]",
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2019-09-01",
@@ -374,7 +372,7 @@
                 "publicIPAllocationMethod": "Static"
               }
             },
-            "bastion": {
+            {
               "condition": "[parameters('deployBastion')]",
               "type": "Microsoft.Network/bastionHosts",
               "apiVersion": "2019-09-01",
@@ -396,11 +394,11 @@
                 ]
               },
               "dependsOn": [
-                "bastionHubIP",
-                "hubLabVnet"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]"
               ]
             },
-            "workspace": {
+            {
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2022-10-01",
               "name": "hub-playground-ws",
@@ -411,7 +409,7 @@
                 }
               }
             },
-            "firewallIP": {
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2019-09-01",
               "name": "[variables('firewallIPName')]",
@@ -423,7 +421,7 @@
                 "publicIPAllocationMethod": "Static"
               }
             },
-            "firewallManagementIP": {
+            {
               "condition": "[equals(parameters('firewallTier'), 'Basic')]",
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2019-09-01",
@@ -436,7 +434,7 @@
                 "publicIPAllocationMethod": "Static"
               }
             },
-            "firewall": {
+            {
               "type": "Microsoft.Network/azureFirewalls",
               "apiVersion": "2022-09-01",
               "name": "[variables('firewallName')]",
@@ -462,13 +460,13 @@
                 }
               },
               "dependsOn": [
-                "firewallIP",
-                "firewallManagementIP",
-                "hubLabVnet",
-                "vnetGateway"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallIPName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallManagementIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnetGatewayName'))]"
               ]
             },
-            "firewallDiagnostics": {
+            {
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2021-05-01-preview",
               "scope": "[format('Microsoft.Network/azureFirewalls/{0}', variables('firewallName'))]",
@@ -498,11 +496,11 @@
                 ]
               },
               "dependsOn": [
-                "firewall",
-                "workspace"
+                "[resourceId('Microsoft.Network/azureFirewalls', variables('firewallName'))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', 'hub-playground-ws')]"
               ]
             },
-            "vnetGatewayIP": {
+            {
               "condition": "[parameters('deployGateway')]",
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2019-09-01",
@@ -515,7 +513,7 @@
                 "publicIPAllocationMethod": "Dynamic"
               }
             },
-            "vnetGateway": {
+            {
               "condition": "[parameters('deployGateway')]",
               "type": "Microsoft.Network/virtualNetworkGateways",
               "apiVersion": "2019-09-01",
@@ -545,11 +543,11 @@
                 }
               },
               "dependsOn": [
-                "hubLabVnet",
-                "vnetGatewayIP"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnetGatewayIPName'))]"
               ]
             },
-            "vmHubDisk": {
+            {
               "condition": "[parameters('deployVmHub')]",
               "type": "Microsoft.Compute/disks",
               "apiVersion": "2019-07-01",
@@ -562,7 +560,7 @@
                 "diskSizeGB": 128
               }
             },
-            "vmHubNIC": {
+            {
               "condition": "[parameters('deployVmHub')]",
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2019-09-01",
@@ -582,10 +580,10 @@
                 ]
               },
               "dependsOn": [
-                "hubLabVnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('hublabName'))]"
               ]
             },
-            "vmHub": {
+            {
               "condition": "[parameters('deployVmHub')]",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2019-07-01",
@@ -630,11 +628,11 @@
                 }
               },
               "dependsOn": [
-                "vmHubDisk",
-                "vmHubNIC"
+                "[resourceId('Microsoft.Compute/disks', variables('vmHubDiskName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vmHubNICName'))]"
               ]
             },
-            "vmHubAutoshutdown": {
+            {
               "condition": "[parameters('deployVmHub')]",
               "type": "Microsoft.DevTestLab/schedules",
               "apiVersion": "2018-09-15",
@@ -653,10 +651,10 @@
                 "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmHubName'))]"
               },
               "dependsOn": [
-                "vmHub"
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vmHubName'))]"
               ]
             },
-            "vm01Disk": {
+            {
               "condition": "[parameters('deployVm01')]",
               "type": "Microsoft.Compute/disks",
               "apiVersion": "2019-07-01",
@@ -669,7 +667,7 @@
                 "diskSizeGB": 128
               }
             },
-            "vm01NIC": {
+            {
               "condition": "[parameters('deployVm01')]",
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2019-09-01",
@@ -689,10 +687,10 @@
                 ]
               },
               "dependsOn": [
-                "spoke01vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke01Name'))]"
               ]
             },
-            "vm01": {
+            {
               "condition": "[parameters('deployVm01')]",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2019-07-01",
@@ -737,11 +735,11 @@
                 }
               },
               "dependsOn": [
-                "vm01Disk",
-                "vm01NIC"
+                "[resourceId('Microsoft.Compute/disks', variables('vm01DiskName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vm01NICName'))]"
               ]
             },
-            "vm01Autoshutdown": {
+            {
               "condition": "[parameters('deployVm01')]",
               "type": "Microsoft.DevTestLab/schedules",
               "apiVersion": "2018-09-15",
@@ -760,10 +758,10 @@
                 "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm01Name'))]"
               },
               "dependsOn": [
-                "vm01"
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vm01Name'))]"
               ]
             },
-            "vm02Disk": {
+            {
               "condition": "[parameters('deployVm02')]",
               "type": "Microsoft.Compute/disks",
               "apiVersion": "2019-07-01",
@@ -776,7 +774,7 @@
                 "diskSizeGB": 128
               }
             },
-            "vm02NIC": {
+            {
               "condition": "[parameters('deployVm02')]",
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2019-09-01",
@@ -796,10 +794,10 @@
                 ]
               },
               "dependsOn": [
-                "spoke02vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke02Name'))]"
               ]
             },
-            "vm02": {
+            {
               "condition": "[parameters('deployVm02')]",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2019-07-01",
@@ -844,11 +842,11 @@
                 }
               },
               "dependsOn": [
-                "vm02Disk",
-                "vm02NIC"
+                "[resourceId('Microsoft.Compute/disks', variables('vm02DiskName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vm02NICName'))]"
               ]
             },
-            "vm02Autoshutdown": {
+            {
               "condition": "[parameters('deployVm02')]",
               "type": "Microsoft.DevTestLab/schedules",
               "apiVersion": "2018-09-15",
@@ -867,10 +865,10 @@
                 "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm02Name'))]"
               },
               "dependsOn": [
-                "vm02"
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vm02Name'))]"
               ]
             },
-            "vm03Disk": {
+            {
               "condition": "[parameters('deployVm03')]",
               "type": "Microsoft.Compute/disks",
               "apiVersion": "2019-07-01",
@@ -883,7 +881,7 @@
                 "diskSizeGB": 128
               }
             },
-            "vm03NIC": {
+            {
               "condition": "[parameters('deployVm03')]",
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2019-09-01",
@@ -903,10 +901,10 @@
                 ]
               },
               "dependsOn": [
-                "spoke03vnet"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('spoke03Name'))]"
               ]
             },
-            "vm03": {
+            {
               "condition": "[parameters('deployVm03')]",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2019-07-01",
@@ -951,11 +949,11 @@
                 }
               },
               "dependsOn": [
-                "vm03Disk",
-                "vm03NIC"
+                "[resourceId('Microsoft.Compute/disks', variables('vm03DiskName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vm03NICName'))]"
               ]
             },
-            "vm03Autoshutdown": {
+            {
               "condition": "[parameters('deployVm03')]",
               "type": "Microsoft.DevTestLab/schedules",
               "apiVersion": "2018-09-15",
@@ -974,35 +972,30 @@
                 "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vm03Name'))]"
               },
               "dependsOn": [
-                "vm03"
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('vm03Name'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "hubVnet": {
               "type": "object",
-              "value": "[reference('hubLabVnet', '2019-09-01', 'full')]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('hublabName')), '2019-09-01', 'full')]"
             },
             "spoke01Vnet": {
               "type": "object",
-              "value": "[reference('spoke01vnet', '2019-09-01', 'full')]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('spoke01Name')), '2019-09-01', 'full')]"
             },
             "spoke02Vnet": {
               "type": "object",
-              "value": "[reference('spoke02vnet', '2019-09-01', 'full')]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('spoke02Name')), '2019-09-01', 'full')]"
             },
             "spoke03Vnet": {
               "type": "object",
-              "value": "[reference('spoke03vnet', '2019-09-01', 'full')]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('spoke03Name')), '2019-09-01', 'full')]"
             },
             "firewallTier": {
               "type": "string",
-              "allowedValues": [
-                "Basic",
-                "Premium",
-                "Standard"
-              ],
-              "value": "[parameters('firewallTier')]"
+              "value": "[string(parameters('firewallTier'))]"
             }
           }
         }
@@ -1035,7 +1028,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "262553335280360647"
+              "templateHash": "10101459254122748217"
             }
           },
           "parameters": {
@@ -1080,7 +1073,7 @@
             "spoke03Name": "spoke-03",
             "firewallName": "lab-firewall",
             "firewallIPName": "lab-firewall-ip",
-            "firewallIpAddress": "10.12.0.4"
+            "firewallIpAddress": "10.12.3.4"
           },
           "resources": [
             {
@@ -1706,7 +1699,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "18186597337224328789"
+              "templateHash": "9844727282933727255"
             }
           },
           "parameters": {
@@ -1714,9 +1707,16 @@
               "type": "bool",
               "defaultValue": false
             },
+            "privateLinkServiceName": {
+              "type": "string",
+              "defaultValue": ""
+            },
             "kubeConfig": {
               "type": "securestring"
             }
+          },
+          "variables": {
+            "privateLink": "[not(empty(parameters('privateLinkServiceName')))]"
           },
           "imports": {
             "kubernetes": {
@@ -1868,7 +1868,10 @@
                 "metadata": {
                   "name": "azure-vote-front",
                   "annotations": {
-                    "service.beta.kubernetes.io/azure-load-balancer-internal": "[if(parameters('privateLoadBalancer'), 'true', 'false')]"
+                    "service.beta.kubernetes.io/azure-load-balancer-internal": "[if(parameters('privateLoadBalancer'), 'true', 'false')]",
+                    "service.beta.kubernetes.io/azure-load-balancer-internal-subnet": "default",
+                    "service.beta.kubernetes.io/azure-pls-create": "[if(variables('privateLink'), 'true', 'false')]",
+                    "service.beta.kubernetes.io/azure-pls-name": "[parameters('privateLinkServiceName')]"
                   }
                 },
                 "spec": {
