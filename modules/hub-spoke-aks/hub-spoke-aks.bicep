@@ -1,3 +1,4 @@
+//az deployment group create --resource-group <resource-group-name> --template-file default-aks.bicep --parameters @default-aks.parameters.json
 //https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider
 //PRIVATE clusters are not supported as of now: https://github.com/Azure/bicep-extensibility/issues/130
 
@@ -53,5 +54,6 @@ module kubernetes '../aks-vote-app/aks-vote-app.bicep' = {
   name: 'buildbicep-deploy'
   params: {
     kubeConfig: aksDeploy.outputs.kubeconfig
+    privateLoadBalancer: true //this is needed in order to test DNAT rule from the firewall to the internal load balancer
   }
 }
