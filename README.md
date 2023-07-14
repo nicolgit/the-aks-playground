@@ -78,5 +78,4 @@ For each scenario you have:
 | 1 | Deploy a confidential computing nodes pool | [see the documentation](scenarios/confidential-01.md) |
 | 2 | Expose a workload from AKS with Azure Front Door | [see the documentation](scenarios/front-door.md) |
 | 3 | Expose a workload from AKS with Azure Firewall | [see the documentation](scenarios/firewall-01.md) |
-
-
+| 4 | Deploy Container Insights on AKS Cluster | [see the documentation](scenarios/containerinsights.md) |
