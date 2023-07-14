@@ -8,6 +8,7 @@
 <br/><br/>
 
 ![hub and spoke](images/architecture-h-and-s.png)
+
 _Download the [draw.io file](images/architecture.drawio) of this schema_
 
 This repo contains a preconfigured Azure Kubernetes Service cluster embedded inside an hub-and-spoke network topology, aligned to the Azure enterprise-scale landing zone reference architecture, useful for testing and studying network configurations in a controlled, repeatable environment.
