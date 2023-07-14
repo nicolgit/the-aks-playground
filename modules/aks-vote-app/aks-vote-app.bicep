@@ -1,4 +1,7 @@
 param privateLoadBalancer bool = false
+param privateLinkServiceName string = ''
+var privateLink = !empty(privateLinkServiceName)
+
 @secure()
 param kubeConfig string
 
@@ -135,6 +138,9 @@ resource coreService_azureVoteFront 'core/Service@v1' = {
     name: 'azure-vote-front'
     annotations: {
       'service.beta.kubernetes.io/azure-load-balancer-internal': privateLoadBalancer ? 'true' : 'false'
+      'service.beta.kubernetes.io/azure-load-balancer-internal-subnet': 'default'
+      'service.beta.kubernetes.io/azure-pls-create': privateLink ? 'true' : 'false'
+      'service.beta.kubernetes.io/azure-pls-name': privateLinkServiceName
     }
   }
   spec: {

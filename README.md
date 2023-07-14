@@ -9,6 +9,8 @@
 
 ![hub and spoke](images/architecture-h-and-s.png)
 
+_Download the [draw.io file](images/architecture.drawio) of this schema_
+
 This repo contains a preconfigured Azure Kubernetes Service cluster embedded inside an hub-and-spoke network topology, aligned to the Azure enterprise-scale landing zone reference architecture, useful for testing and studying network configurations in a controlled, repeatable environment.
 
 As bonus many scenarios with step-by-step solutions for studying and learning are also available.
@@ -32,6 +34,7 @@ You can use the following button to deploy the demo to your Azure subscription:
 This diagram shows a detailed version with also all subnets, virtual machines, NVAs, IPs and Firewalls.
 
 ![detailed architecture](images/architecture-detail.png)
+_Download the [draw.io file](images/architecture.drawio) of this schema._
 
 the ARM template [hub-spoke-aks.json](modules-arm/hub-spoke-aks.json) deploys:
 
@@ -50,6 +53,16 @@ the ARM template [hub-spoke-aks.json](modules-arm/hub-spoke-aks.json) deploys:
 * `hub-playground-ws`: a log analytics workspace where to collect all firewall logs
 * `aks-01`: an Azure Kubernetes Service cluster deployed on `services` `spoke-01` subnet
 
+`aks-01` cluster has 1 node pool and 2 sample workload deployed: `azure vote front` and `azure vote back` taken from the [Microsoft Artifact Registry](https://mcr.microsoft.com/): a super-simple front-end/back-end application that exposes a sample UI over HTTP. 
+To test the workload, you need to know the IP of the front-end load balancer.
+_Because we're using Azure CNI, you could also have used the pod IP. But keep in mind that pods are volatile, so in a Kubernetes context it is always advisable to use the load balancer IP. _
+
+You can find this IP in:
+* Azure Portal > `aks-01` > Services and ingresses > `azure-vote-front` > Services > `azure-vote-front` > External IP (something like **10.13.1.y**)
+
+To test it: access to `hub-vm-01` in RDP/bastion and open in Edge `http://x.x.x.x` (where `x.x.x.x` is the IP found above)
+
+
 ## Playground's scenarios
 Here there is a list of tested scenarios usable on this playground.
 
@@ -63,3 +76,7 @@ For each scenario you have:
 | | scenario description | solution |
 |---|---|---|
 | 1 | Deploy a confidential computing nodes pool | [see the documentation](scenarios/confidential-01.md) |
+| 2 | Expose a workload from AKS with Azure Front Door | [see the documentation](scenarios/front-door.md) |
+| 3 | Expose a workload from AKS with Azure Firewall | [see the documentation](scenarios/firewall-01.md) |
+
+
