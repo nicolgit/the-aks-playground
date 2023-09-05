@@ -15,8 +15,6 @@ Let's proceed: open a BASH cloud shell as onwer of the subscription that contain
 
 Run the following command to enable the confidential computing add-on:
 
-? va abilitato il monitoring a livello di cluster prima ?
-
 ```
 myRg="<your resource group name>"
 # az aks enable-addons --addons monitoring --name "aks-01" --resource-group $myRg
