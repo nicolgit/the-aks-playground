@@ -20,11 +20,10 @@ myworkspaceid="<the ResourceId of your log analytics workspace>"
 
 az aks enable-addons -a monitoring -n $myclustername -g $myRg --workspace-resource-id $myworkspaceid
 ```
-Remember that you need to specify the workspace if of your Log Analytics Workspace, an easy way to find that is to look in the section properties of your LAW. or you can use this command line
+Remember that you need to specify the workspace Resource ID of your Log Analytics Workspace (LAW). An easy way to find that ID is looking in the section properties of your LAW, or using this command line
 
 ```
-myworkspaceid = az resource list --resource-group "<your resource group name>" --name "<your cluster name>" --query [*].id --output tsv
-
+myworkspaceid = az resource list --resource-group "<your LAW resource group name>" --name "<your LAW resource name>" --query [*].id --output tsv
 ```
 
 
