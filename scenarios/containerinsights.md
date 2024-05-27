@@ -16,9 +16,9 @@ Run the following command to enable the confidential computing add-on:
 ```
 myRg="<your resource group name>"
 myclustername="<your cluster name>"
-myworkspaceid="<the id of your workspace>"
+myworkspaceid="<the ResourceId of your log analytics workspace>"
 
-# az aks enable-addons -a monitoring -n <cluster-name> -g <cluster-resource-group-name> --workspace-resource-id <workspace-resource-id>
+az aks enable-addons -a monitoring -n $myclustername -g $myRg --workspace-resource-id $myworkspaceid
 ```
 Remember that you need to specify the workspace if of your Log Analytics Workspace, an easy way to find that is to look in the section properties of your LAW. or you can use this command line
 
