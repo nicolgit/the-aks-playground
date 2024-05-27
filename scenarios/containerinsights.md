@@ -11,21 +11,20 @@ Monitoring is one of the **most important** things that you need to implement, i
 
 Let's proceed: open a BASH cloud shell as onwer of the subscription that contains the `AKS-playground`.
 
-Run the following command to enable the confidential computing add-on:
+Run the following command to enable the add-on:
 
 ```
 myRg="<your resource group name>"
-myclustername="<your cluster name>"
 myworkspaceid="<the ResourceId of your log analytics workspace>"
 
-az aks enable-addons -a monitoring -n $myclustername -g $myRg --workspace-resource-id $myworkspaceid
+az aks enable-addons -a monitoring -n "aks-01" -g $myRg --workspace-resource-id $myworkspaceid
 ```
+
 Remember that you need to specify the workspace Resource ID of your Log Analytics Workspace (LAW). An easy way to find that ID is looking in the section properties of your LAW, or using this command line
 
 ```
 myworkspaceid = az resource list --resource-group "<your LAW resource group name>" --name "<your LAW resource name>" --query [*].id --output tsv
 ```
-
 
 ## Test Solution
 Get the credentials for your AKS cluster by using the az aks get-credentials command:
